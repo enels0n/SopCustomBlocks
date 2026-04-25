@@ -1,12 +1,16 @@
-name: ${project.name}
+﻿name: ${project.name}
 main: ${project.groupId}.${project.name}
 version: ${project.version}
 authors: [E_NeLsOn]
 depend: [SopLib, PlaceholderAPI, NBTAPI]
 api-version: 1.16
 commands:
-  acustomblocks:
-    usage: /acustomblocks
+  sopcustomblocks:
+    usage: /sopcustomblocks
+    aliases: [acustomblocks]
 permissions:
+  sopcustomblocks.admin:
+    default: op
   acustomblocks.admin:
     default: op
+
