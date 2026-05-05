@@ -80,6 +80,18 @@ public class BlockManager {
         }
         float yaw = player != null ? this.getDirection(player, id) : 0.0f;
         float pitch = player != null ? this.getPitch(player, id) : 0.0f;
+        this.addBlock(id, location, yaw, pitch);
+    }
+
+    public void addBlock(String id, Location location, float yaw, float pitch) {
+        if (id == null || location == null || location.getWorld() == null) {
+            return;
+        }
+        ItemStack item = Utils.generateItem(id);
+        if (item == null || item.getType() == Material.AIR) {
+            this.plugin.getLogger().warning("Failed to create visual item for custom block id: " + id);
+            return;
+        }
         boolean usePitch = this.configManager.getBoolean(ConfigType.BLOCKS, id + ".use-pitch");
         CustomBlockVisualOptions options = this.readVisualOptions(id, yaw, pitch, usePitch);
         Location base = location.getBlock().getLocation();
