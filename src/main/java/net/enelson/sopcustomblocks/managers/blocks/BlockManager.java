@@ -69,28 +69,30 @@ public class BlockManager {
         return this.blocksByEntityUuid.get(entity.getUniqueId());
     }
 
-    public void addBlock(String id, Location location, Player player) {
+    public CustomBlock addBlock(String id, Location location, Player player) {
+        id = Utils.normalizeId(id);
         if (id == null || location == null || location.getWorld() == null) {
-            return;
+            return null;
         }
         ItemStack item = Utils.generateItem(id);
         if (item == null || item.getType() == Material.AIR) {
             this.plugin.getLogger().warning("Failed to create visual item for custom block id: " + id);
-            return;
+            return null;
         }
         float yaw = player != null ? this.getDirection(player, id) : 0.0f;
         float pitch = player != null ? this.getPitch(player, id) : 0.0f;
-        this.addBlock(id, location, yaw, pitch);
+        return this.addBlock(id, location, yaw, pitch);
     }
 
-    public void addBlock(String id, Location location, float yaw, float pitch) {
+    public CustomBlock addBlock(String id, Location location, float yaw, float pitch) {
+        id = Utils.normalizeId(id);
         if (id == null || location == null || location.getWorld() == null) {
-            return;
+            return null;
         }
         ItemStack item = Utils.generateItem(id);
         if (item == null || item.getType() == Material.AIR) {
             this.plugin.getLogger().warning("Failed to create visual item for custom block id: " + id);
-            return;
+            return null;
         }
         boolean usePitch = this.configManager.getBoolean(ConfigType.BLOCKS, id + ".use-pitch");
         CustomBlockVisualOptions options = this.readVisualOptions(id, yaw, pitch, usePitch);
@@ -98,9 +100,14 @@ public class BlockManager {
         Location spawn = base.clone().add(options.getOffsetX(), options.getOffsetY(), options.getOffsetZ());
         CustomBlockVisualOptions spawnOptions = CustomBlockVisualOptions.of((float)options.getYaw(), (float)options.getPitch(), (boolean)options.isUsePitch(), (double)0.0, (double)0.0, (double)0.0, (float)options.getScaleX(), (float)options.getScaleY(), (float)options.getScaleZ());
         Entity entity = this.createEntityWithoutBlock(spawn, item, id, spawnOptions);
+        if (entity == null) {
+            this.plugin.getLogger().warning("Failed to create visual entity for custom block id: " + id);
+            return null;
+        }
         CustomBlock customBlock = new CustomBlock(id, base, entity, yaw, pitch, usePitch, entity != null ? entity.getUniqueId().toString() : null);
         this.put(customBlock);
         this.save();
+        return customBlock;
     }
 
     public void breakBlock(CustomBlock block, Player player) {
@@ -213,7 +220,12 @@ public class BlockManager {
             float pitch = (float)db.getDouble(entryKey + ".pitch");
             boolean usePitch = db.getBoolean(entryKey + ".usePitch");
             String entityUuid = db.getString(entryKey + ".entityUUID");
-            if (id == null || locationSerialized == null) continue;
+            id = Utils.normalizeId(id);
+            if (id == null) {
+                this.plugin.getLogger().warning("Skipping broken db entry with empty custom block id: " + entryKey);
+                continue;
+            }
+            if (locationSerialized == null) continue;
             try {
                 location = Utils.getDeserializedLocation(locationSerialized);
             }

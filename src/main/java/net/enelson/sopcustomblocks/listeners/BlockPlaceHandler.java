@@ -1,6 +1,7 @@
 package net.enelson.sopcustomblocks.listeners;
 
 import net.enelson.sopcustomblocks.SopCustomBlocks;
+import net.enelson.sopcustomblocks.managers.blocks.CustomBlock;
 import net.enelson.sopcustomblocks.managers.config.ConfigType;
 import net.enelson.sopcustomblocks.utils.Utils;
 import org.bukkit.Bukkit;
@@ -38,7 +39,11 @@ implements Listener {
         }
         final String newBlock = SopCustomBlocks.getInstance().getConfigManager().getString(ConfigType.BLOCKS, id + ".replacement-block");
         final Material material = newBlock != null ? Material.valueOf((String)newBlock.toUpperCase()) : e.getItemInHand().getType();
-        SopCustomBlocks.getInstance().getBlockManager().addBlock(id, block.getLocation(), e.getPlayer());
+        CustomBlock placed = SopCustomBlocks.getInstance().getBlockManager().addBlock(id, block.getLocation(), e.getPlayer());
+        if (placed == null) {
+            e.getPlayer().sendMessage("Failed to place custom block visual. Check console.");
+            return;
+        }
         Bukkit.getScheduler().runTaskLater((Plugin)SopCustomBlocks.getInstance(), new Runnable(){
             @Override
             public void run() {

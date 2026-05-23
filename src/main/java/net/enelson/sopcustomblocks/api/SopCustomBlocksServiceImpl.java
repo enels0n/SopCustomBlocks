@@ -23,7 +23,7 @@ public final class SopCustomBlocksServiceImpl implements SopCustomBlocksService 
 
     @Override
     public void placeBlock(String id, Location location) {
-        if (!isAvailable()) {
+        if (!isAvailable() || Utils.normalizeId(id) == null) {
             return;
         }
         plugin.getBlockManager().addBlock(id, location, 0.0F, 0.0F);
@@ -31,7 +31,7 @@ public final class SopCustomBlocksServiceImpl implements SopCustomBlocksService 
 
     @Override
     public void placeBlock(String id, Location location, float yaw, float pitch) {
-        if (!isAvailable()) {
+        if (!isAvailable() || Utils.normalizeId(id) == null) {
             return;
         }
         plugin.getBlockManager().addBlock(id, location, yaw, pitch);
@@ -39,7 +39,7 @@ public final class SopCustomBlocksServiceImpl implements SopCustomBlocksService 
 
     @Override
     public void placeBlock(String id, Location location, Player player) {
-        if (!isAvailable()) {
+        if (!isAvailable() || Utils.normalizeId(id) == null) {
             return;
         }
         plugin.getBlockManager().addBlock(id, location, player);
@@ -80,7 +80,7 @@ public final class SopCustomBlocksServiceImpl implements SopCustomBlocksService 
 
     @Override
     public ItemStack getBlockItem(String id) {
-        if (!isAvailable()) {
+        if (!isAvailable() || Utils.normalizeId(id) == null) {
             return null;
         }
         return Utils.generateItem(id);

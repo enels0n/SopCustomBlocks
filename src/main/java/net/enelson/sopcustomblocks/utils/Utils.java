@@ -11,7 +11,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class Utils {
+    public static String normalizeId(String id) {
+        if (id == null) {
+            return null;
+        }
+        String normalized = id.trim();
+        return normalized.isEmpty() ? null : normalized;
+    }
+
     public static ItemStack generateItem(String id, int amount) {
+        id = Utils.normalizeId(id);
+        if (id == null) {
+            return null;
+        }
         String material = SopCustomBlocks.getInstance().getConfigManager().getString(ConfigType.BLOCKS, id + ".material");
         if (material == null) {
             return null;
@@ -40,7 +52,7 @@ public class Utils {
     }
 
     public static String getId(ItemStack item) {
-        return (String)SopLib.getInstance().getItemUtils().getNBT(item, "SopCustomBlocks", String.class);
+        return Utils.normalizeId((String)SopLib.getInstance().getItemUtils().getNBT(item, "SopCustomBlocks", String.class));
     }
 
     public static Location getDeserializedLocation(String s) {
