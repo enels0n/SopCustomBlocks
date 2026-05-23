@@ -21,7 +21,6 @@ public class Utils {
         List<String> enchantments = SopCustomBlocks.getInstance().getConfigManager().getStringList(ConfigType.BLOCKS, id + ".enchantments");
         List<String> lore = SopCustomBlocks.getInstance().getConfigManager().getStringList(ConfigType.BLOCKS, id + ".lore");
         List<String> nbts = SopCustomBlocks.getInstance().getConfigManager().getStringList(ConfigType.BLOCKS, id + ".nbts");
-        nbts.add("ACustomBlocks::" + id);
         nbts.add("SopCustomBlocks::" + id);
         String customItemKey = SopCustomBlocks.getInstance().getConfigManager().getString(ConfigType.BLOCKS, id + ".custom-item-key");
         String customItemKeyFallback = SopCustomBlocks.getInstance().getConfigManager().getString(ConfigType.BLOCKS, id + ".custom-item-key-fallback");
@@ -41,11 +40,7 @@ public class Utils {
     }
 
     public static String getId(ItemStack item) {
-        String id = (String)SopLib.getInstance().getItemUtils().getNBT(item, "SopCustomBlocks", String.class);
-        if (id != null && !id.isEmpty()) {
-            return id;
-        }
-        return (String)SopLib.getInstance().getItemUtils().getNBT(item, "ACustomBlocks", String.class);
+        return (String)SopLib.getInstance().getItemUtils().getNBT(item, "SopCustomBlocks", String.class);
     }
 
     public static Location getDeserializedLocation(String s) {
@@ -62,7 +57,7 @@ public class Utils {
     }
 
     public static boolean hasAdminPermission(CommandSender sender) {
-        return sender.hasPermission("sopcustomblocks.admin") || sender.hasPermission("acustomblocks.admin");
+        return sender.hasPermission("sopcustomblocks.admin");
     }
 }
 

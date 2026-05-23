@@ -14,7 +14,7 @@
   lore: # not required
     - "Custom Block lore"
   replacement-block: BARRIER #block that will replace the custom block, not required
-  break-only-admin: true # Only players with perm "acustomblocks.admin" can break this block, not required
+  break-only-admin: true # Only players with perm "sopcustomblocks.admin" can break this block, not required
   break-by-hit: true # break by hit -_-, not required
   can-exploded: true # not required
   use-player-rotation: true #use player rotation to place rotated block, not required
@@ -32,7 +32,7 @@
   name: "Only admin block"
   lore:
     - "&eThis block can be broken only by player"
-    - "&ewho has \"acustomblocks.admin\" permission"
+    - "&ewho has \"sopcustomblocks.admin\" permission"
   replacement-block: BARRIER
   break-only-admin: true
   break-by-hit: true

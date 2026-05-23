@@ -1,6 +1,8 @@
 package net.enelson.sopcustomblocks;
 
 import net.enelson.sopcustomblocks.commands.CommandManager;
+import net.enelson.sopcustomblocks.api.SopCustomBlocksService;
+import net.enelson.sopcustomblocks.api.SopCustomBlocksServiceImpl;
 import net.enelson.sopcustomblocks.listeners.ArmorStandHandler;
 import net.enelson.sopcustomblocks.listeners.BlockBreakHandler;
 import net.enelson.sopcustomblocks.listeners.BlockDamageHandler;
@@ -25,12 +27,14 @@ extends JavaPlugin {
     private static SopCustomBlocks plugin;
     private BlockManager blockManager;
     private ConfigManager configManager;
+    private SopCustomBlocksService api;
 
     public void onEnable() {
         plugin = this;
         this.configManager = new ConfigManager(this);
         this.reloadConfig();
         this.blockManager = new BlockManager(this);
+        this.api = new SopCustomBlocksServiceImpl(this);
         PluginManager pluginManager = Bukkit.getPluginManager();
         this.registerListener(pluginManager, new ArmorStandHandler());
         this.registerListener(pluginManager, new BlockBreakHandler());
@@ -56,6 +60,10 @@ extends JavaPlugin {
         return this.configManager;
     }
 
+    public SopCustomBlocksService getApi() {
+        return this.api;
+    }
+
     public void reloadConfig() {
         this.configManager.reloadConfig();
     }
@@ -66,6 +74,7 @@ extends JavaPlugin {
         }
         this.configManager.reloadConfig();
         this.blockManager = new BlockManager(this);
+        this.api = new SopCustomBlocksServiceImpl(this);
         for (World world : Bukkit.getWorlds()) {
             this.blockManager.reconcileWorld(world);
         }
@@ -75,6 +84,7 @@ extends JavaPlugin {
         if (this.blockManager != null) {
             this.blockManager.deInit(false);
         }
+        this.api = null;
     }
 
     private void registerListener(PluginManager pluginManager, Listener listener) {
