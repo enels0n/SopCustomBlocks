@@ -3,8 +3,10 @@ package net.enelson.sopcustomblocks.api;
 import net.enelson.sopcustomblocks.SopCustomBlocks;
 import net.enelson.sopcustomblocks.managers.blocks.BlockManager;
 import net.enelson.sopcustomblocks.managers.blocks.CustomBlock;
+import net.enelson.sopcustomblocks.managers.config.ConfigType;
 import net.enelson.sopcustomblocks.utils.Utils;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -26,7 +28,8 @@ public final class SopCustomBlocksServiceImpl implements SopCustomBlocksService 
         if (!isAvailable() || Utils.normalizeId(id) == null) {
             return;
         }
-        plugin.getBlockManager().addBlock(id, location, 0.0F, 0.0F);
+        CustomBlock block = plugin.getBlockManager().addBlock(id, location, 0.0F, 0.0F);
+        applyPhysicalBlock(id, location, block);
     }
 
     @Override
@@ -34,7 +37,8 @@ public final class SopCustomBlocksServiceImpl implements SopCustomBlocksService 
         if (!isAvailable() || Utils.normalizeId(id) == null) {
             return;
         }
-        plugin.getBlockManager().addBlock(id, location, yaw, pitch);
+        CustomBlock block = plugin.getBlockManager().addBlock(id, location, yaw, pitch);
+        applyPhysicalBlock(id, location, block);
     }
 
     @Override
@@ -42,7 +46,8 @@ public final class SopCustomBlocksServiceImpl implements SopCustomBlocksService 
         if (!isAvailable() || Utils.normalizeId(id) == null) {
             return;
         }
-        plugin.getBlockManager().addBlock(id, location, player);
+        CustomBlock block = plugin.getBlockManager().addBlock(id, location, player);
+        applyPhysicalBlock(id, location, block);
     }
 
     @Override
@@ -92,5 +97,32 @@ public final class SopCustomBlocksServiceImpl implements SopCustomBlocksService 
             return null;
         }
         return Utils.getId(item);
+    }
+
+    private void applyPhysicalBlock(String id, Location location, CustomBlock block) {
+        if (block == null || location == null || location.getWorld() == null) {
+            return;
+        }
+
+        String replacement = plugin.getConfigManager().getString(ConfigType.BLOCKS, id + ".replacement-block");
+        Material material = null;
+
+        if (replacement != null && !replacement.trim().isEmpty()) {
+            try {
+                material = Material.valueOf(replacement.trim().toUpperCase());
+            } catch (IllegalArgumentException ignored) {
+                material = null;
+            }
+        }
+
+        if (material == null) {
+            ItemStack item = Utils.generateItem(id);
+            if (item == null || item.getType() == Material.AIR) {
+                return;
+            }
+            material = item.getType();
+        }
+
+        location.getBlock().setType(material);
     }
 }
