@@ -1,10 +1,12 @@
 package net.enelson.sopcustomblocks.listeners;
 
 import net.enelson.sopcustomblocks.SopCustomBlocks;
+import net.enelson.sopcustomblocks.api.event.SopCustomBlockBreakCause;
+import net.enelson.sopcustomblocks.api.event.SopCustomBlockBreakEvent;
 import net.enelson.sopcustomblocks.managers.blocks.CustomBlock;
 import net.enelson.sopcustomblocks.managers.config.ConfigType;
 import net.enelson.sopcustomblocks.utils.Utils;
-import net.enelson.sopcustomblocks.utils.Utils;
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -27,6 +29,11 @@ implements Listener {
             return;
         }
         if (e.isCancelled() || !Utils.canBuild(e.getPlayer(), block.getLocation())) {
+            return;
+        }
+        SopCustomBlockBreakEvent breakEvent = new SopCustomBlockBreakEvent(customBlock, e.getPlayer(), SopCustomBlockBreakCause.PLAYER_DAMAGE);
+        Bukkit.getPluginManager().callEvent(breakEvent);
+        if (breakEvent.isCancelled()) {
             return;
         }
         SopCustomBlocks.getInstance().getBlockManager().breakBlock(customBlock, e.getPlayer());

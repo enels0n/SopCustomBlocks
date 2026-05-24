@@ -1,6 +1,7 @@
 package net.enelson.sopcustomblocks.listeners;
 
 import net.enelson.sopcustomblocks.SopCustomBlocks;
+import net.enelson.sopcustomblocks.api.event.SopCustomBlockPlaceEvent;
 import net.enelson.sopcustomblocks.managers.blocks.CustomBlock;
 import net.enelson.sopcustomblocks.managers.config.ConfigType;
 import net.enelson.sopcustomblocks.utils.Utils;
@@ -35,6 +36,11 @@ implements Listener {
             }
             int radius = Integer.parseInt(id.split("-")[1]);
             e.getPlayer().sendMessage("\u0423\u0434\u0430\u043b\u0435\u043d\u043e " + SopCustomBlocks.getInstance().getBlockManager().debug(block.getLocation(), radius) + " \u0441\u0443\u0449\u043d\u043e\u0441\u0442\u0435\u0439 \u0432 \u0440\u0430\u0434\u0438\u0443\u0441\u0435 " + radius);
+            return;
+        }
+        SopCustomBlockPlaceEvent placeEvent = new SopCustomBlockPlaceEvent(id, block.getLocation(), e.getPlayer(), e.getPlayer().getLocation().getYaw(), e.getPlayer().getLocation().getPitch());
+        Bukkit.getPluginManager().callEvent(placeEvent);
+        if (placeEvent.isCancelled()) {
             return;
         }
         final String newBlock = SopCustomBlocks.getInstance().getConfigManager().getString(ConfigType.BLOCKS, id + ".replacement-block");

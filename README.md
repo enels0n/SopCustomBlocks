@@ -120,6 +120,34 @@ if (service != null && service.isAvailable()) {
 - To detect whether an item belongs to a custom block, use:
   - `SopCustomBlocksAPI.getItemBlockId(item)`
 
+## Events
+
+`SopCustomBlocks` now also exposes plugin events for cleaner integrations.
+
+Available events:
+
+- `SopCustomBlockPlaceEvent`
+- `SopCustomBlockBreakEvent`
+- `SopCustomBlockInteractEvent`
+
+Break causes:
+
+- `PLAYER_BREAK`
+- `PLAYER_DAMAGE`
+- `API`
+- `UNKNOWN`
+
+Example:
+
+```java
+@EventHandler
+public void onCustomBlockBreak(SopCustomBlockBreakEvent event) {
+    if ("generator".equalsIgnoreCase(event.getCustomBlock().getId())) {
+        event.setCancelled(true);
+    }
+}
+```
+
 ## Build
 
 ```bash

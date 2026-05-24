@@ -1,10 +1,14 @@
 package net.enelson.sopcustomblocks.api;
 
 import net.enelson.sopcustomblocks.SopCustomBlocks;
+import net.enelson.sopcustomblocks.api.event.SopCustomBlockBreakCause;
+import net.enelson.sopcustomblocks.api.event.SopCustomBlockBreakEvent;
+import net.enelson.sopcustomblocks.api.event.SopCustomBlockPlaceEvent;
 import net.enelson.sopcustomblocks.managers.blocks.BlockManager;
 import net.enelson.sopcustomblocks.managers.blocks.CustomBlock;
 import net.enelson.sopcustomblocks.managers.config.ConfigType;
 import net.enelson.sopcustomblocks.utils.Utils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -28,6 +32,11 @@ public final class SopCustomBlocksServiceImpl implements SopCustomBlocksService 
         if (!isAvailable() || Utils.normalizeId(id) == null) {
             return;
         }
+        SopCustomBlockPlaceEvent event = new SopCustomBlockPlaceEvent(id, location, null, 0.0F, 0.0F);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) {
+            return;
+        }
         CustomBlock block = plugin.getBlockManager().addBlock(id, location, 0.0F, 0.0F);
         applyPhysicalBlock(id, location, block);
     }
@@ -37,6 +46,11 @@ public final class SopCustomBlocksServiceImpl implements SopCustomBlocksService 
         if (!isAvailable() || Utils.normalizeId(id) == null) {
             return;
         }
+        SopCustomBlockPlaceEvent event = new SopCustomBlockPlaceEvent(id, location, null, yaw, pitch);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) {
+            return;
+        }
         CustomBlock block = plugin.getBlockManager().addBlock(id, location, yaw, pitch);
         applyPhysicalBlock(id, location, block);
     }
@@ -44,6 +58,13 @@ public final class SopCustomBlocksServiceImpl implements SopCustomBlocksService 
     @Override
     public void placeBlock(String id, Location location, Player player) {
         if (!isAvailable() || Utils.normalizeId(id) == null) {
+            return;
+        }
+        float yaw = player != null ? player.getLocation().getYaw() : 0.0F;
+        float pitch = player != null ? player.getLocation().getPitch() : 0.0F;
+        SopCustomBlockPlaceEvent event = new SopCustomBlockPlaceEvent(id, location, player, yaw, pitch);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) {
             return;
         }
         CustomBlock block = plugin.getBlockManager().addBlock(id, location, player);
@@ -58,6 +79,11 @@ public final class SopCustomBlocksServiceImpl implements SopCustomBlocksService 
         BlockManager blockManager = plugin.getBlockManager();
         CustomBlock block = blockManager.getBlock(location);
         if (block == null) {
+            return false;
+        }
+        SopCustomBlockBreakEvent breakEvent = new SopCustomBlockBreakEvent(block, null, SopCustomBlockBreakCause.API);
+        Bukkit.getPluginManager().callEvent(breakEvent);
+        if (breakEvent.isCancelled()) {
             return false;
         }
         blockManager.breakBlock(block, null);
