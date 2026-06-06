@@ -94,7 +94,7 @@ public class BlockManager {
             this.plugin.getLogger().warning("Failed to create visual item for custom block id: " + id);
             return null;
         }
-        boolean usePitch = this.configManager.getBoolean(ConfigType.BLOCKS, id + ".use-pitch");
+        boolean usePitch = this.shouldUsePitch(id);
         CustomBlockVisualOptions options = this.readVisualOptions(id, yaw, pitch, usePitch);
         Location base = location.getBlock().getLocation();
         Location spawn = base.clone().add(options.getOffsetX(), options.getOffsetY(), options.getOffsetZ());
@@ -306,6 +306,7 @@ public class BlockManager {
     }
 
     private void removeStoredBlock(CustomBlock customBlock) {
+        Location location = customBlock.getLocation();
         this.blocksByLocation.remove(this.key(customBlock.getLocation()));
         if (customBlock.getEntity() != null) {
             this.blocksByEntityUuid.remove(customBlock.getEntity().getUniqueId());
@@ -320,6 +321,12 @@ public class BlockManager {
                 // empty catch block
             }
         }
+        if (location != null) {
+            for (Entity entity : this.findManagedEntities(location, customBlock.getId())) {
+                this.visualService.removeEntityWithoutBlock(entity);
+                this.blocksByEntityUuid.remove(entity.getUniqueId());
+            }
+        }
     }
 
     private CustomBlockVisualOptions readVisualOptions(String id, float yaw, float pitch, boolean usePitch) {
@@ -329,7 +336,10 @@ public class BlockManager {
         float scaleX = (float)this.readScale(id + ".scale-x", 1.002);
         float scaleY = (float)this.readScale(id + ".scale-y", 1.002);
         float scaleZ = (float)this.readScale(id + ".scale-z", 1.002);
-        return CustomBlockVisualOptions.of((float)yaw, (float)(usePitch ? pitch : 0.0f), (boolean)usePitch, (double)posX, (double)posY, (double)posZ, (float)scaleX, (float)scaleY, (float)scaleZ);
+        float resolvedYaw = this.resolveConfiguredYaw(id, yaw);
+        float resolvedPitch = this.resolveConfiguredPitch(id, pitch);
+        boolean resolvedUsePitch = usePitch || this.hasConfiguredPitch(id);
+        return CustomBlockVisualOptions.of((float)resolvedYaw, (float)(resolvedUsePitch ? resolvedPitch : 0.0f), (boolean)resolvedUsePitch, (double)posX, (double)posY, (double)posZ, (float)scaleX, (float)scaleY, (float)scaleZ);
     }
 
     private double readPosition(String path, double fallback) {
@@ -343,9 +353,21 @@ public class BlockManager {
     }
 
     private float getDirection(Player player, String id) {
+        YamlConfiguration blocks = this.configManager.getConfig(ConfigType.BLOCKS);
+        if (blocks.contains(id + ".fixed-yaw")) {
+            return (float) blocks.getDouble(id + ".fixed-yaw");
+        }
+        if (blocks.contains(id + ".yaw")) {
+            return (float) blocks.getDouble(id + ".yaw");
+        }
         float rotation = 0.0f;
-        if (this.configManager.getBoolean(ConfigType.BLOCKS, id + ".use-yaw")) {
-            int round = this.configManager.getInt(ConfigType.BLOCKS, id + ".yaw-rotation-round");
+        boolean useYaw = blocks.contains(id + ".use-yaw")
+                ? blocks.getBoolean(id + ".use-yaw")
+                : blocks.getBoolean(id + ".use-player-rotation");
+        if (useYaw) {
+            int round = blocks.contains(id + ".yaw-rotation-round")
+                    ? blocks.getInt(id + ".yaw-rotation-round")
+                    : blocks.getInt(id + ".rotation-round");
             round = round > 0 ? round : 90;
             round = round <= 90 ? round : 90;
             float yaw = player.getLocation().getYaw();
@@ -356,15 +378,54 @@ public class BlockManager {
     }
 
     private float getPitch(Player player, String id) {
-        if (!this.configManager.getBoolean(ConfigType.BLOCKS, id + ".use-pitch")) {
+        YamlConfiguration blocks = this.configManager.getConfig(ConfigType.BLOCKS);
+        if (blocks.contains(id + ".fixed-pitch")) {
+            return (float) blocks.getDouble(id + ".fixed-pitch");
+        }
+        if (blocks.contains(id + ".pitch")) {
+            return (float) blocks.getDouble(id + ".pitch");
+        }
+        if (!blocks.getBoolean(id + ".use-pitch")) {
             return 0.0f;
         }
-        int round = this.configManager.getInt(ConfigType.BLOCKS, id + ".pitch-rotation-round");
+        int round = blocks.getInt(id + ".pitch-rotation-round");
         if (round <= 0) {
             return player.getLocation().getPitch();
         }
         float pitch = player.getLocation().getPitch();
         return Math.round(pitch / (float)round) * round;
+    }
+
+    private float resolveConfiguredYaw(String id, float fallbackYaw) {
+        YamlConfiguration blocks = this.configManager.getConfig(ConfigType.BLOCKS);
+        if (blocks.contains(id + ".fixed-yaw")) {
+            return (float) blocks.getDouble(id + ".fixed-yaw");
+        }
+        if (blocks.contains(id + ".yaw")) {
+            return (float) blocks.getDouble(id + ".yaw");
+        }
+        return fallbackYaw;
+    }
+
+    private float resolveConfiguredPitch(String id, float fallbackPitch) {
+        YamlConfiguration blocks = this.configManager.getConfig(ConfigType.BLOCKS);
+        if (blocks.contains(id + ".fixed-pitch")) {
+            return (float) blocks.getDouble(id + ".fixed-pitch");
+        }
+        if (blocks.contains(id + ".pitch")) {
+            return (float) blocks.getDouble(id + ".pitch");
+        }
+        return fallbackPitch;
+    }
+
+    private boolean hasConfiguredPitch(String id) {
+        YamlConfiguration blocks = this.configManager.getConfig(ConfigType.BLOCKS);
+        return blocks.contains(id + ".fixed-pitch") || blocks.contains(id + ".pitch");
+    }
+
+    private boolean shouldUsePitch(String id) {
+        YamlConfiguration blocks = this.configManager.getConfig(ConfigType.BLOCKS);
+        return blocks.getBoolean(id + ".use-pitch") || this.hasConfiguredPitch(id);
     }
 
     private String key(Location location) {

@@ -17,8 +17,13 @@
   break-only-admin: true # Only players with perm "sopcustomblocks.admin" can break this block, not required
   break-by-hit: true # break by hit -_-, not required
   can-exploded: true # not required
-  use-player-rotation: true #use player rotation to place rotated block, not required
-  rotation-round: 45 #if "use-player-rotation: true", will round the rotation angle to the nearest multiple of the specified number. Valid values: 15, 45, 90. default value is 90, not required
+  use-yaw: true # use player yaw rotation, not required
+  yaw-rotation-round: 45 # rounds yaw to nearest 15 / 45 / 90, not required
+  use-pitch: false # if true, applies player pitch, not required
+  # fixed-yaw: 90 # fixed yaw override, not required
+  # fixed-pitch: 0 # fixed pitch override, not required
+  # yaw: 90 # alias for fixed-yaw
+  # pitch: 0 # alias for fixed-pitch
   scale-x: 5.0 #default value is 1.002, not required
   scale-y: 5.0 #default value is 1.002, not required
   scale-z: 5.0 #default value is 1.002, not required
