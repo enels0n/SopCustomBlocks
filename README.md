@@ -8,7 +8,6 @@ The plugin stores placed custom blocks, restores them after restart, and exposes
 
 - `Spigot/Paper 1.16.5+`
 - `SopLib`
-- `PlaceholderAPI`
 - `NBTAPI`
 
 ## Commands
@@ -49,8 +48,13 @@ Example:
   break-only-admin: true
   break-by-hit: true
   can-exploded: true
-  use-player-rotation: true
-  rotation-round: 45
+  use-yaw: true
+  yaw-rotation-round: 45
+  use-pitch: false
+  # fixed-yaw: 90
+  # fixed-pitch: 0
+  # yaw: 90
+  # pitch: 0
   scale-x: 5.0
   scale-y: 5.0
   scale-z: 5.0
@@ -58,6 +62,12 @@ Example:
   pos-y: 2.5
   pos-z: 0.5
 ```
+
+Notes:
+
+- `yaw` and `pitch` are supported as fixed aliases.
+- `fixed-yaw` / `fixed-pitch` are the explicit fixed rotation options.
+- `pitch: 90` will usually place a display item on its side. Use `pitch: 0` for an upright crate-like model.
 
 ## Public API
 

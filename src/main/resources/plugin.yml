@@ -2,7 +2,7 @@
 main: ${project.groupId}.${project.name}
 version: ${project.version}
 authors: [E_NeLsOn]
-depend: [SopLib, PlaceholderAPI, NBTAPI]
+depend: [SopLib, NBTAPI]
 api-version: 1.16
 commands:
   sopcustomblocks:
