@@ -5,7 +5,7 @@
 
     <groupId>net.enelson.sopcustomblocks</groupId>
     <artifactId>SopCustomBlocks</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <name>SopCustomBlocks</name>
 
     <properties>
@@ -46,6 +46,12 @@
                 <configuration>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <shadedArtifactAttached>false</shadedArtifactAttached>
+                    <relocations>
+                        <relocation>
+                            <pattern>org.bstats</pattern>
+                            <shadedPattern>net.enelson.sopcustomblocks.metrics</shadedPattern>
+                        </relocation>
+                    </relocations>
                 </configuration>
                 <executions>
                     <execution>
@@ -101,6 +107,12 @@
             <artifactId>soplib-core</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.bstats</groupId>
+            <artifactId>bstats-bukkit</artifactId>
+            <version>3.2.1</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

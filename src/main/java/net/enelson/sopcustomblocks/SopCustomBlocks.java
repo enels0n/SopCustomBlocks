@@ -13,6 +13,8 @@ import net.enelson.sopcustomblocks.listeners.ExplodeHandler;
 import net.enelson.sopcustomblocks.listeners.PistonHandler;
 import net.enelson.sopcustomblocks.managers.blocks.BlockManager;
 import net.enelson.sopcustomblocks.managers.config.ConfigManager;
+import net.enelson.sopcustomblocks.managers.config.ConfigType;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.CommandExecutor;
@@ -24,6 +26,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class SopCustomBlocks
 extends JavaPlugin {
+    private static final int BSTATS_PLUGIN_ID = 32810;
     private static SopCustomBlocks plugin;
     private BlockManager blockManager;
     private ConfigManager configManager;
@@ -33,6 +36,7 @@ extends JavaPlugin {
         plugin = this;
         this.configManager = new ConfigManager(this);
         this.reloadConfig();
+        this.startMetricsIfConfigured();
         this.blockManager = new BlockManager(this);
         this.api = new SopCustomBlocksServiceImpl(this);
         PluginManager pluginManager = Bukkit.getPluginManager();
@@ -89,6 +93,13 @@ extends JavaPlugin {
 
     private void registerListener(PluginManager pluginManager, Listener listener) {
         pluginManager.registerEvents(listener, (Plugin)this);
+    }
+
+    private void startMetricsIfConfigured() {
+        if (!this.configManager.getConfig(ConfigType.CONFIG).getBoolean("bstats.enabled", true)) {
+            return;
+        }
+        new Metrics(this, BSTATS_PLUGIN_ID);
     }
 }
 
